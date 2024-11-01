@@ -42,9 +42,6 @@ resource "aws_s3_bucket" "bucket_sprint4" {
   }
 }
 
-
-
-
   # Regras de entrada
   ingress {
     from_port   = 22
@@ -67,5 +64,34 @@ resource "aws_s3_bucket" "bucket_sprint4" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+# Grupo de segurança para o ALB
+resource "aws_security_group" "alb_sg" {
+  name        = "alb_security_group"
+  description = "Grupo de segurança Application Load Balancer"
+
+
+
+# Criar o Application Load Balancer
+resource "aws_lb" "app_lb_sprint4" {
+  name               = "app_lb_sprint4"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = [subnet-01d57d465162e6c0c]  
+
+
+  tags = {
+    Name = "MyAppLoadBalancerSprint4"
+  }
+}
+
+# Listener para comtrolar o tráfego
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
 }
 
